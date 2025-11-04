@@ -59,25 +59,7 @@ Prevents inconsistent plans (e.g., wrong time order, missing transfers).
 Makes creation of complex objects clearer and safer.
 Enables immutable, validated final itineraries.
 
-### 4) Chain of Responsibility 
-Purpose: The search engine processes data through a pipeline—fetch providers, merge, enrich, filter. Each step should be independent and replaceable.
-
-#### Advantages:
-
-Build flexible pipelines by reordering or swapping steps.
-Reuse handlers across different flows (transport, lodging, etc.).
-Simplifies debugging and unit testing per stage.
-
-### 5) Facade 
-Purpose: The UI should not coordinate adapters, strategies, and pipelines directly. A Facade exposes high-level entry points like “plan trip” or “search lodging,” hiding internal complexity.
-
-#### Advantages:
-
-Keeps the UI simple and stable even as internals evolve.
-Reduces coupling between presentation and core layers.
-Makes end-to-end testing easier and clearer.
-
-### 6) Observer / Publish–Subscribe 
+### 4) Observer
 Purpose: Travel data can change dynamically (price, availability, schedule). The Observer pattern lets data sources publish updates that interested parts (alerts, UI) subscribe to.
 
 #### Advantages:
