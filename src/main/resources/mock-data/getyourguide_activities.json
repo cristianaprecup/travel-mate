@@ -1,0 +1,22 @@
+[
+  {
+    "tour_code": "GYG-PRS-301",
+    "activity_name": "Eiffel Tower Guided Climb",
+    "activity_category": "Tour",
+    "venue_location": "Champ de Mars, Paris",
+    "daily_open": "09:00",
+    "daily_close": "18:00",
+    "avg_duration_hours": 2,
+    "cost_per_person_eur": 60
+  },
+  {
+    "tour_code": "GYG-PRS-405",
+    "activity_name": "Louvre Museum Skip-the-Line",
+    "activity_category": "Museum",
+    "venue_location": "Rue de Rivoli, Paris",
+    "daily_open": "09:00",
+    "daily_close": "20:00",
+    "avg_duration_hours": 3,
+    "cost_per_person_eur": 45
+  }
+]

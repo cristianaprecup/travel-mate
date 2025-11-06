@@ -1,0 +1,22 @@
+[
+  {
+    "booking_ref": "BOOK-HOT-987",
+    "property_title": "Grand Hotel du Louvre",
+    "type_of_stay": "Hotel",
+    "street_address": "12 Rue de Rivoli, Paris",
+    "price_per_night_eur": 250,
+    "distance_to_center_m": 500,
+    "checkin_time": "15:00",
+    "checkout_time": "11:00"
+  },
+  {
+    "booking_ref": "BOOK-HST-543",
+    "property_title": "The Traveller Hostel",
+    "type_of_stay": "Hostel",
+    "street_address": "45 Rue Saint-André, Paris",
+    "price_per_night_eur": 45,
+    "distance_to_center_m": 1200,
+    "checkin_time": "14:00",
+    "checkout_time": "10:00"
+  }
+]

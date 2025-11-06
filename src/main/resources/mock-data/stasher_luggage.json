@@ -1,0 +1,22 @@
+[
+  {
+    "stash_id": "ST-LOC-A82",
+    "location_name": "Near CDG Train Station",
+    "location_address": "50 Rue de la Gare, Roissy",
+    "near_poi": "CDG Train Hub",
+    "available_start_time": "06:00",
+    "available_end_time": "23:00",
+    "price_per_hour_usd": 5,
+    "distance_from_query_m": 150
+  },
+  {
+    "stash_id": "ST-LOC-B91",
+    "location_name": "Châtelet Laundry Mat",
+    "location_address": "10 Blvd. Sébastopol, Paris",
+    "near_poi": "Châtelet-Les Halles Metro",
+    "available_start_time": "08:00",
+    "available_end_time": "20:00",
+    "price_per_hour_usd": 4,
+    "distance_from_query_m": 50
+  }
+]
