@@ -82,6 +82,106 @@ Makes end-to-end testing easier and clearer.
 
 ## **Software Architectures**
 
+### *1. Monolithic Architecture*
+
+### *1.1 Description*
+
+The entire TravelMate system is implemented as a **single Spring Boot application**, where all features including routing, authentication, search, ranking, and itinerary generation run in the **same process** and share a **single relational database** (TravelMateDB).
+
+Internal communication happens through **direct method calls** instead of REST/HTTP between services.  
+This simplifies development, debugging, and deployment, and ensures **strong consistency** across the whole trip-planning workflow.
+
+This architecture is ideal for the early stages of TravelMate, where rapid prototyping and minimal DevOps complexity are essential.
+
+---
+
+### *1.2 Key Components*
+
+| *Module*                     | *Responsibilities*                                                                 | *Patterns* |
+|-------------------------------|---------------------------------------------------------------------------------------|--------------|
+| *Routing & Auth*            | Handles HTTP routing, session validation, and authorization                          | –            |
+| *API Layer (Controllers)*   | REST endpoints for search, ranking, itinerary, login, and registration               | –            |
+| *TravelPlanner Facade*      | Orchestrates search, ranking, and itinerary-building workflows                       | *Facade*   |
+| *SearchEngine*              | Calls external travel APIs (Skyscanner, Booking, GetYourGuide, Stasher)              | *Adapter*  |
+| *ProviderRegistry*          | Registers and manages provider adapters                                               | *Adapter*  |
+| *RankingService*            | Scores trip options using Cheapest / Fastest / Balanced modes                        | *Strategy* |
+| *ItineraryBuilder*          | Builds the final itinerary from selected options                                      | *Builder*  |
+| *UserRepository*            | Persists users, credentials, and preferences                                         | Repository   |
+| *ItineraryRepository*       | Saves itineraries and trip plan data                                                 | Repository   |
+| *TripCache / SearchCache*   | Caches recent search results                                                         | –            |
+| *TravelMateDB*              | Single relational database storing all system data                                   | –            |
+
+---
+
+### *1.3 Structure & Data Flow*
+
+#### *System Structure*
+
+* *Single deployable unit*: one Spring Boot application containing all controllers, services, repositories, and adapters.
+* All internal logic uses *in-memory method calls*, not network requests.
+* One relational database (TravelMateDB) stores users, search results, itineraries, and preferences.
+* SearchEngine integrates directly with external travel APIs.
+
+
+#### *Data Flow Example (Plan Trip)*
+
+1. Client sends HTTP request - received by *Routing & Auth*
+2. Routing validates user - forwards to *TripController*
+3. TripController calls *TravelPlanner Facade*
+4. TravelPlanner executes:
+    - *SearchEngine* - ProviderRegistry → external APIs
+    - *RankingService* - Strategy pattern
+    - *ItineraryBuilder* - builds final itinerary
+5. Results stored via *ItineraryRepository* in *TravelMateDB*
+6. Response returned to client
+
+All steps occur *inside a single runtime* with strong consistency.
+
+---
+
+### *1.4 Architecture Diagrams*
+
+#### *Deployment Diagram*
+
+![Deployment Diagram](diagrams-milestone-3/deployment_mono.png)
+
+> Shows the single TravelMate Monolithic Application interacting with the database and external travel APIs.
+
+
+#### *Component Diagram*
+
+![Component Diagram](diagrams-milestone-3/component_mono.png)
+
+> Shows internal structure: API Layer, Core Services, Persistence, ProviderRegistry.
+
+---
+
+### *1.5 Pros and Cons*
+
+#### *Advantages*
+
+* *Simple Development:* Entire system in one codebase; easy debugging.
+* *Strong Consistency:* All logic uses one DB and one process.
+* *Fast Initial Development:* Great for MVP and project milestone.
+* *Low Operational Overhead:* One deployment, one DB.
+
+
+#### *Disadvantages*
+
+* *Low Scalability:* Must scale entire app even if only search is heavy.
+* *Single Point of Failure:* A crash affects the whole system.
+* *Maintenance Difficulty:* Codebase becomes large over time.
+* *Coupled Releases:* All features must be deployed together.
+
+
+#### *Project-Specific Considerations*
+
+* Ideal for early TravelMate development and design pattern demonstration.
+* Not suitable long-term due to heavy external API usage and variability in search load.
+* Provides foundational structure before migrating to Microservices or EDA.
+
+---
+
 ### **2. Microservices Architecture**
 
 ### **2.1 Description**
