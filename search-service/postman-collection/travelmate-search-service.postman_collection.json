@@ -1,0 +1,127 @@
+{
+	"info": {
+		"_postman_id": "6e4584e3-ae0a-44ef-823d-67015d595e64",
+		"name": "TravelMate - Search Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27662002"
+	},
+	"item": [
+		{
+			"name": "Search - happy path",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"from\": \"Cluj\",\n  \"to\": \"London\",\n  \"startDate\": \"2025-12-10\",\n  \"endDate\": \"2025-12-15\",\n  \"maxBudget\": 500.0\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search – invalid budget",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"from\": \"Cluj\",\n  \"to\": \"London\",\n  \"startDate\": \"2025-12-10\",\n  \"endDate\": \"2025-12-15\",\n  \"maxBudget\": -10\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search – missing 'from'",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"from\": \"\",\n  \"to\": \"London\",\n  \"startDate\": \"2025-12-10\",\n  \"endDate\": \"2025-12-15\",\n  \"maxBudget\": 500\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8081/search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search – health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/search/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"search",
+						"health"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
