@@ -56,6 +56,30 @@ public class SearchEngine {
             }
         });
 
-        return new SearchResult(transport, stays, activities, luggage, warnings);
+        double budget = prefs.maxBudget();
+
+        List<TransportOption> filteredTransport = transport.stream()
+                .filter(t -> t.priceAmount() <= budget)
+                .toList();
+
+        List<StayOption> filteredStays = stays.stream()
+                .filter(s -> s.priceAmount() <= budget)
+                .toList();
+
+        List<ActivityOption> filteredActivities = activities.stream()
+                .filter(a -> a.priceAmount() <= budget)
+                .toList();
+
+        List<LuggageOption> filteredLuggage = luggage.stream()
+                .filter(l -> l.pricePerHour() <= budget)
+                .toList();
+
+        return new SearchResult(
+                filteredTransport,
+                filteredStays,
+                filteredActivities,
+                filteredLuggage,
+                warnings
+        );
     }
 }

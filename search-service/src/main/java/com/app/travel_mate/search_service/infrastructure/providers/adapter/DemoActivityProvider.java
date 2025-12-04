@@ -14,10 +14,24 @@ public class DemoActivityProvider implements ActivityProvider {
     public List<ActivityOption> search(UserPrefs prefs) {
         return List.of(
                 new ActivityOption(
-                        "DemoGetYourGuide",
-                        "City tour",
+                        "ACT-001",
+                        "City Walking Tour",
+                        "Tourism",
                         prefs.to(),
-                        30.0
+                        "09:00",
+                        "17:00",
+                        120,
+                        25
+                ),
+                new ActivityOption(
+                        "ACT-002",
+                        "Art Museum Entry",
+                        "Culture",
+                        prefs.to(),
+                        "10:00",
+                        "18:00",
+                        90,
+                        15
                 )
         );
     }

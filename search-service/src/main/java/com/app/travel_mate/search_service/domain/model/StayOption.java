@@ -1,9 +1,14 @@
 package com.app.travel_mate.search_service.domain.model;
 
+import java.time.LocalDateTime;
+
 public record StayOption(
-        String provider,       // ex. "DemoBooking"
-        String hotelName,      // name of the stay location
-        String city,           // city of the accommodation
-        double pricePerNight,  // cost per night
-        double rating          // user rating (1-5)
+        String id,
+        String name,
+        String type,
+        String address,
+        LocalDateTime checkIn,
+        LocalDateTime checkOut,
+        int priceAmount,
+        int distanceMeters
 ) {}
