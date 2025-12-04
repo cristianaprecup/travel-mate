@@ -1,15 +1,17 @@
 package com.app.travel_mate.application.facade;
 
+import com.app.travel_mate.application.dto.SearchRequestDto;
+import com.app.travel_mate.application.dto.SearchResultDto;
 import com.app.travel_mate.domain.builder.ItineraryBuilder;
 import com.app.travel_mate.domain.model.Itinerary;
 import com.app.travel_mate.domain.model.options.*;
-import com.app.travel_mate.domain.model.queries.*;
+import com.app.travel_mate.domain.model.queries.TripQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -24,7 +26,7 @@ public class TravelPlanner {
     @Value("${ranking.service.url}")
     private String rankingServiceUrl;
 
-    private String activeStrategy = "cheapest"; // default
+    private String activeStrategy = "cheapest";
 
     @Autowired
     public TravelPlanner(RestTemplate restTemplate, ItineraryBuilder itineraryBuilder) {
@@ -34,52 +36,104 @@ public class TravelPlanner {
 
     public void setRankingStrategy(String strategyName) {
         this.activeStrategy = strategyName;
+        System.out.println("Strategy changed to: " + this.activeStrategy);
     }
 
     public Itinerary planTrip(TripQuery query) {
-        System.out.println("--- Trip Service: Orchestrating Plan ---");
+        System.out.println("\n=================================================");
+        System.out.println("--- Trip Service: Orchestrating Plan START ---");
+        System.out.println("Query received for: " + query.getOrigin() + " -> " + query.getDestination());
 
-        TransportQuery tq = new TransportQuery(query.getOrigin(), query.getDestination(), query.getDepartDate(), query.getPassengers(), 9999, 9999, 10, true);
-        StayQuery sq = new StayQuery(query.getDestination(), query.getDepartDate(), query.getReturnDate(), query.getPassengers(), 9999, 0, 9999);
-        ActivityQuery aq = new ActivityQuery(query.getDestination(), query.getDepartDate(), query.getReturnDate(), null, 9999, 0, 9999);
+        double budget = (query.getMaxBudget() != null) ? query.getMaxBudget().doubleValue() : 10000.0;
 
-        System.out.println("Calling Search Service at: " + searchServiceUrl);
+        SearchRequestDto searchRequest = new SearchRequestDto(
+                query.getOrigin(),
+                query.getDestination(),
+                query.getDepartDate().toString(),
+                query.getReturnDate().toString(),
+                budget
+        );
+        System.out.println("Step 1: Created SearchRequestDto with budget: " + budget);
 
-        TransportOption[] transports = restTemplate.postForObject(searchServiceUrl + "/transport", tq, TransportOption[].class);
-        StayOption[] stays = restTemplate.postForObject(searchServiceUrl + "/stay", sq, StayOption[].class);
-        ActivityOption[] activities = restTemplate.postForObject(searchServiceUrl + "/activity", aq, ActivityOption[].class);
+        System.out.println("Step 2: Calling Unified Search Service at: " + searchServiceUrl);
 
-        if (transports == null || transports.length == 0) throw new RuntimeException("No flights found!");
-        if (stays == null || stays.length == 0) throw new RuntimeException("No hotels found!");
+        SearchResultDto searchResult = null;
+        try {
+            searchResult = restTemplate.postForObject(
+                    searchServiceUrl,
+                    searchRequest,
+                    SearchResultDto.class
+            );
+            System.out.println("Step 2: Search Service responded successfully.");
+        } catch (Exception e) {
+            System.err.println("Step 2 ERROR: Failed to call search service. " + e.getMessage());
+            throw new RuntimeException("Search service failure: " + e.getMessage());
+        }
 
-        TransportOption candidateTransport = transports[0];
-        StayOption candidateStay = stays[0];
-        List<ActivityOption> candidateActivities = (activities != null) ? Arrays.asList(activities) : List.of();
+        if (searchResult == null) {
+            throw new RuntimeException("Search service returned null response");
+        }
 
-        TripCandidate candidate = new TripCandidate();
-        candidate.transport = candidateTransport;
-        candidate.stay = candidateStay;
-        candidate.activities = candidateActivities;
+        List<TransportOption> transports = searchResult.transport();
+        List<StayOption> stays = searchResult.stays();
+        List<ActivityOption> activities = searchResult.activities();
 
-        System.out.println("Calling Ranking Service at: " + rankingServiceUrl + "/" + activeStrategy);
+        System.out.println("Step 3: Unpacked results.");
+        System.out.println(" - Transports found: " + (transports != null ? transports.size() : 0));
+        System.out.println(" - Stays found: " + (stays != null ? stays.size() : 0));
+        System.out.println(" - Activities found: " + (activities != null ? activities.size() : 0));
 
-        Integer score = restTemplate.postForObject(rankingServiceUrl + "/" + activeStrategy, candidate, Integer.class);
+        if (transports == null || transports.isEmpty()) {
+            throw new RuntimeException("No flights found!");
+        }
 
-        System.out.println("Trip Service: Received Score from remote service: " + score);
+        TransportOption candidateTransport = transports.get(0);
+        StayOption candidateStay = (stays != null && !stays.isEmpty()) ? stays.get(0) : null;
+        List<ActivityOption> candidateActivities = (activities != null) ? activities : Collections.emptyList();
 
+        if (candidateStay != null) {
+            TripCandidate candidate = new TripCandidate();
+            candidate.transport = candidateTransport;
+            candidate.stay = candidateStay;
+            candidate.activities = candidateActivities;
+
+            System.out.println("Step 4: Calling Ranking Service at: " + rankingServiceUrl + "/" + activeStrategy);
+            try {
+                Integer score = restTemplate.postForObject(rankingServiceUrl + "/" + activeStrategy, candidate, Integer.class);
+                System.out.println("Step 4: Ranking Score received: " + score);
+            } catch (Exception e) {
+                System.err.println("Step 4 WARNING: Ranking service failed, continuing without score. Error: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Step 4 Skipped: No stay available to rank.");
+        }
+
+        System.out.println("Step 5: Building final Itinerary...");
         itineraryBuilder.reset();
         itineraryBuilder.addTransport(candidateTransport);
-        itineraryBuilder.addStay(candidateStay);
+        if (candidateStay != null) {
+            itineraryBuilder.addStay(candidateStay);
+        }
         for (ActivityOption a : candidateActivities) {
             itineraryBuilder.addActivity(a);
         }
 
-        return itineraryBuilder.getResult();
+        Itinerary result = itineraryBuilder.getResult();
+        System.out.println("--- Trip Service: Orchestrating Plan COMPLETE ---");
+        System.out.println("=================================================\n");
+
+        return result;
     }
 
     private static class TripCandidate {
         public TransportOption transport;
         public StayOption stay;
         public List<ActivityOption> activities;
+        public TransportOption getTransport() { return transport; }
+        public void setTransport(TransportOption transport) { this.transport = transport; }
+        public StayOption getStay() { return stay; }
+        public void setStay(StayOption stay) { this.stay = stay; }
+        public List<ActivityOption> getActivities() { return activities; }
+        public void setActivities(List<ActivityOption> activities) { this.activities = activities; }
     }
 }
