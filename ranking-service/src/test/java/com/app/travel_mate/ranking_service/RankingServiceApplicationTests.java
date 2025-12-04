@@ -9,5 +9,4 @@ class RankingServiceApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
