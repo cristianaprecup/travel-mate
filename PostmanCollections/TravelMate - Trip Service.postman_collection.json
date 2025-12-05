@@ -1,0 +1,129 @@
+{
+	"info": {
+		"_postman_id": "fdf72cff-a303-48b5-81f1-d0a951335bec",
+		"name": "TravelMate - Trip Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27662002"
+	},
+	"item": [
+		{
+			"name": "Plan Trip - Happy Path",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"origin\": \"OTP\",\n  \"destination\": \"CDG\",\n  \"departDate\": \"2025-12-10T10:00:00\",\n  \"returnDate\": \"2025-12-15T10:00:00\",\n  \"passengers\": 1,\n  \"maxBudget\": 5000,\n  \"maxDurationMinutes\": 600,\n  \"maxStops\": 2,\n  \"baggageRequired\": true\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/trip/plan",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"trip",
+						"plan"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Plan Trip - Missing Required Fields (Validation Error)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"destination\": \"CDG\",\n  \"departDate\": \"2025-12-10T10:00:00\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/trip/plan",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"trip",
+						"plan"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Plan Trip – Very Low Budget (Fallback Logic)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"origin\": \"OTP\",\n  \"destination\": \"CDG\",\n  \"departDate\": \"2025-12-10T10:00:00\",\n  \"returnDate\": \"2025-12-15T10:00:00\",\n  \"passengers\": 1,\n  \"maxBudget\": 100,\n  \"baggageRequired\": false\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/trip/plan",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"trip",
+						"plan"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change Ranking Strategy (Cheapest)",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Change Ranking Strategy (Fastest)",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
