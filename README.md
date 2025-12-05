@@ -414,3 +414,69 @@ While the Monolithic approach was perfect for our Proof-of-Concept (POC) to demo
 1. Independent Scaling of Providers: TravelMate integrates different APIs. Flight searches (Skyscanner) get 100x more traffic than Luggage storage searches (Stasher). Microservices allow us to deploy 50 instances of the Search Service but only 2 instances of the Itinerary Service, optimizing cloud performance. In a Monolith, we would have to scale the entire application unnecessarily.
 2. Fault Isolation: External Travel APIs are unreliable. If the Booking.com API hangs or crashes, it could block threads in a Monolith, bringing down the entire TravelMate app. In a Microservices architecture, only the SearchService would be affected. Users could still log in, view past trips, and search for flights.
 3. Manageable Complexity: Compared to Event-Driven Architecture, Microservices use standard REST/HTTP patterns that are easier to debug, test, and reason about. We avoid the "hidden control flow" issues of EDA while still gaining the benefits of a distributed system.
+
+---
+
+## Docker Setup
+
+The microservices share one Docker network:
+
+`docker compose up --build`
+
+This command launches:
+
+| Service | Port | Description |
+|--------|------|-------------|
+| trip-service | 8080 | Orchestrator / Facade |
+| search-service | 8081 | Adapters for providers |
+| ranking-service | 8082 | Strategy / scoring |
+
+Environment variables configure service URLs:
+
+```yaml
+environment:
+  - TRIP_SERVICE_URL=http://trip-service:8080/api/trip
+  - SEARCH_SERVICE_URL=http://search-service:8081/api/search
+  - RANKING_SERVICE_URL=http://ranking-service:8082/api/rank
+```
+
+### How to Test the System with Postman
+
+Endpoint:
+
+`POST http://localhost:8080/api/trip/plan`
+
+Sample Body:
+
+```
+{
+    "origin": "OTP",
+    "destination": "CDG",
+    "departDate": "2025-12-10T10:00:00",
+    "returnDate": "2025-12-15T10:00:00",
+    "passengers": 1,
+    "maxBudget": 5000,
+    "maxDurationMinutes": 600,
+    "maxStops": 2,
+    "baggageRequired": true
+}
+```
+
+Expected Output:
+
+```
+{
+  "transport": {
+    "mode": "WALK",
+    "priceAmount": 0
+  },
+  "stay": {
+    "name": "Cozy Budget Inn",
+    "priceAmount": 45
+  },
+  "activities": [
+    {"name": "City Walking Tour", "priceAmount": 25},
+    {"name": "Art Museum Entry", "priceAmount": 15}
+  ]
+}
+```
