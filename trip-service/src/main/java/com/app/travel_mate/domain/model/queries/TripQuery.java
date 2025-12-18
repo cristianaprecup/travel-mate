@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
@@ -13,13 +12,15 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @ToString
 @AllArgsConstructor
+@Setter
+@NoArgsConstructor
 public final class TripQuery {
 
-    private final String origin;
-    private final String destination;
-    private final LocalDateTime departDate;
-    private final LocalDateTime returnDate;
-    private final int passengers;
+    private String origin;
+    private String destination;
+    private LocalDateTime departDate;
+    private LocalDateTime returnDate;
+    private int passengers;
     private Integer maxBudget;
     private Integer maxDurationMinutes;
     private Integer maxStops;

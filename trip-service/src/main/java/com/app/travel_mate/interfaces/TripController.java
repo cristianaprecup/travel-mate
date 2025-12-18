@@ -24,4 +24,9 @@ public class TripController {
         System.out.println("Trip Controller: Setting strategy to " + name);
         travelPlanner.setRankingStrategy(name);
     }
+
+    @GetMapping("/health")
+    public String health() {
+        return "trip-service OK";
+    }
 }

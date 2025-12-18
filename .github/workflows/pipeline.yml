@@ -1,0 +1,89 @@
+name: TravelMate Pipeline
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Build & Test Search Service
+        run: |
+          cd search-service
+          chmod +x mvnw
+          ./mvnw -B clean verify
+
+      - name: Build & Test Ranking Service
+        run: |
+          cd ranking-service
+          chmod +x mvnw
+          ./mvnw -B clean verify
+
+      - name: Build & Test Trip Service
+        run: |
+          cd trip-service
+          chmod +x mvnw
+          ./mvnw -B clean verify
+
+  deploy-local-docker:
+    needs: build-and-test
+    if: github.event_name == 'push'
+    runs-on: [ self-hosted, linux, local-docker ]
+
+    concurrency:
+      group: deploy-local
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build Docker Images
+        run: docker compose build
+
+      - name: Start or Update Containers
+        run: |
+          docker compose up -d --remove-orphans
+          docker compose ps
+          docker ps -a
+
+      - name: Wait for services to be healthy
+        run: |
+          set -e
+
+          check() {
+            name="$1"
+            url="$2"
+
+            echo "Checking $name: $url"
+            for i in $(seq 1 30); do
+              if curl -fsS "$url" > /dev/null; then
+                echo "$name is healthy"
+                return 0
+              fi
+              echo "Still waiting for $name, try $i/30"
+              sleep 2
+            done
+
+            echo "ERROR: $name not healthy"
+            echo "Logs:"
+            docker compose logs --no-color --tail=200
+            exit 1
+          }
+
+          check "search-service"  "http://localhost:8081/api/search/health"
+          check "ranking-service" "http://localhost:8082/api/rank/health"
+          check "trip-service"    "http://localhost:8080/api/trip/health"

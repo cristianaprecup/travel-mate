@@ -48,4 +48,9 @@ public class RankingController {
         public StayOption stay;
         public List<ActivityOption> activities;
     }
+
+    @GetMapping("/health")
+    public String health() {
+        return "rank-service OK";
+    }
 }
