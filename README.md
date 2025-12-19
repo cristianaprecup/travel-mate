@@ -480,3 +480,70 @@ Expected Output:
   ]
 }
 ```
+
+## CI/CD
+
+This repo uses GitHub Actions to build, test, and deploy the 3 services to a **local Docker Compose** environment.
+
+Services:
+- `search-service`
+- `ranking-service`
+- `trip-service`
+
+Workflow file:
+- `.github/workflows/pipeline.yml`
+
+## When it runs
+- **CI**: on `push`, `pull_request`, `workflow_dispatch`
+- **Local deploy (CD)**: on `push` only
+
+## What it does
+
+### CI: build-and-test
+Runs on `ubuntu-latest` and builds + tests each service:
+
+```bash
+cd search-service && ./mvnw -B clean verify
+cd ranking-service && ./mvnw -B clean verify
+cd trip-service && ./mvnw -B clean verify
+```
+
+### CD: deploy-local-docker
+Runs only if CI succeeds (`needs: build-and-test`) and only on `push`.
+
+Runs on a self-hosted runner:
+
+```yaml
+runs-on: [self-hosted, Linux, x64]
+```
+
+Deploy steps:
+```bash
+docker compose build
+docker compose up -d --remove-orphans
+```
+
+Health checks:
+- `http://localhost:8081/api/search/health`
+- `http://localhost:8082/api/rank/health`
+- `http://localhost:8080/api/trip/health`
+
+## Self-hosted runner requirements
+On the runner machine:
+- Docker + Docker Compose installed and running
+- The repo checked out by the workflow
+- The runner process is running (from the `actions-runner` folder):
+  ```bash
+  ./run.sh
+  ```
+
+## How to verify from runner machine
+
+From the folder that contains `docker-compose.yaml`:
+
+```bash
+docker compose ps
+curl -i http://localhost:8081/api/search/health
+curl -i http://localhost:8082/api/rank/health
+curl -i http://localhost:8080/api/trip/health
+```
