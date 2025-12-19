@@ -41,7 +41,7 @@ jobs:
   deploy-local-docker:
     needs: build-and-test
     if: github.event_name == 'push'
-    runs-on: [ self-hosted, linux, local-docker ]
+    runs-on: [self-hosted, Linux, x64]
 
     concurrency:
       group: deploy-local
@@ -50,6 +50,12 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Build JARs (skip tests)
+        run: |
+          cd search-service && chmod +x mvnw && ./mvnw -B -DskipTests clean package
+          cd ../ranking-service && chmod +x mvnw && ./mvnw -B -DskipTests clean package
+          cd ../trip-service && chmod +x mvnw && ./mvnw -B -DskipTests clean package
 
       - name: Build Docker Images
         run: docker compose build
