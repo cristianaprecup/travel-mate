@@ -1,0 +1,109 @@
+{
+	"info": {
+		"_postman_id": "f6810158-6f30-43f2-99f6-b99128ff3441",
+		"name": "TravelMate - Ranking Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27662002"
+	},
+	"item": [
+		{
+			"name": "Ranking – Cheapest Strategy",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"transport\": {\n    \"id\": \"T1\",\n    \"mode\": \"FLIGHT\",\n    \"operator\": \"Air France\",\n    \"origin\": \"OTP\",\n    \"destination\": \"CDG\",\n    \"departTime\": \"2025-12-10T10:00:00\",\n    \"arriveTime\": \"2025-12-10T12:40:00\",\n    \"durationMinutes\": 160,\n    \"stops\": 0,\n    \"baggageIncluded\": true,\n    \"priceAmount\": 700\n  },\n  \"stay\": {\n    \"id\": \"H1\",\n    \"name\": \"Ibis Paris\",\n    \"type\": \"HOTEL\",\n    \"address\": \"Paris Center\",\n    \"checkIn\": \"2025-12-10T14:00:00\",\n    \"checkOut\": \"2025-12-15T11:00:00\",\n    \"priceAmount\": 400,\n    \"distanceMeters\": 500\n  },\n  \"activities\": [\n    {\n      \"id\": \"A1\",\n      \"name\": \"Louvre Museum\",\n      \"category\": \"MUSEUM\",\n      \"location\": \"Paris\",\n      \"openTime\": \"09:00\",\n      \"closeTime\": \"18:00\",\n      \"typicalDurationMinutes\": 120,\n      \"priceAmount\": 60\n    }\n  ]\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/api/rank/cheapest",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"api",
+						"rank",
+						"cheapest"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8082/api/rank/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"api",
+						"rank",
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ranking - Fastest Strategy",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"transport\": {\n    \"id\": \"T1\",\n    \"mode\": \"FLIGHT\",\n    \"operator\": \"Air France\",\n    \"origin\": \"OTP\",\n    \"destination\": \"CDG\",\n    \"departTime\": \"2025-12-10T10:00:00\",\n    \"arriveTime\": \"2025-12-10T12:40:00\",\n    \"durationMinutes\": 160,\n    \"stops\": 0,\n    \"baggageIncluded\": true,\n    \"priceAmount\": 700\n  },\n  \"stay\": {\n    \"id\": \"H1\",\n    \"name\": \"Ibis Paris\",\n    \"type\": \"HOTEL\",\n    \"address\": \"Paris Center\",\n    \"checkIn\": \"2025-12-10T14:00:00\",\n    \"checkOut\": \"2025-12-15T11:00:00\",\n    \"priceAmount\": 400,\n    \"distanceMeters\": 500\n  },\n  \"activities\": [\n    {\n      \"id\": \"A1\",\n      \"name\": \"Louvre Museum\",\n      \"category\": \"MUSEUM\",\n      \"location\": \"Paris\",\n      \"openTime\": \"09:00\",\n      \"closeTime\": \"18:00\",\n      \"typicalDurationMinutes\": 120,\n      \"priceAmount\": 60\n    }\n  ]\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/api/rank/fastest",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"api",
+						"rank",
+						"fastest"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
